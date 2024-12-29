@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const BidApp = () => {
   const [connection, setConnection] = useState(null);
@@ -55,7 +56,11 @@ const BidApp = () => {
   // Handle bid submission
   const placeBid = async () => {
     if (!selectedProduct || bidAmount.trim() === "") {
-      alert("Please select a product and enter a valid bid amount.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select a product and enter a valid bid amount.',
+      });
       return;
     }
 
@@ -67,7 +72,11 @@ const BidApp = () => {
           bidAmount: `$${bidAmount}`,
         }
       );
-      alert(response.data); // Display success message
+      Swal.fire({
+        icon: 'success',
+        title: 'Bid placed!',
+        text: response.data,
+      });
 
       // Update the local product list with the new bid amount
       setProducts((prevProducts) =>
@@ -86,37 +95,46 @@ const BidApp = () => {
 
       setBidAmount(""); // Clear bid input
     } catch (error) {
-      alert(error.response?.data || "An error occurred while placing the bid.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Something went wrong!',
+        text: error.response?.data || "An error occurred while placing the bid.",
+      });
     }
   };
 
   return (
-    <div>
-      <h1>Bid App</h1>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-center text-4xl font-bold mb-8">Bid App</h1>
 
       {/* Notification */}
-      <div>
-        <h2>Notifications</h2>
-        <ul>
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
+        <ul className="space-y-2">
           {Notifications.map((notification, index) => (
-            <li key={index}>{notification}</li>
+            <li
+              key={index}
+              className="p-4 bg-blue-100 text-blue-800 rounded-lg shadow-sm"
+            >
+              {notification}
+            </li>
           ))}
         </ul>
       </div>
 
       {/* Product List */}
-      <div>
-        <h2>Products</h2>
-        <ul>
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-4">Products</h2>
+        <ul className="space-y-2">
           {products.map((product) => (
             <li
               key={product.id}
               onClick={() => setSelectedProduct(product)}
-              style={{
-                cursor: "pointer",
-                fontWeight:
-                  selectedProduct?.id === product.id ? "bold" : "normal",
-              }}
+              className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-100 transition ${
+                selectedProduct?.id === product.id
+                  ? "bg-gray-200 font-semibold"
+                  : ""
+              }`}
             >
               {product.title} - Current Bid: {product.currentBid}
             </li>
@@ -126,24 +144,34 @@ const BidApp = () => {
 
       {/* Place Bid */}
       <div>
-        <h2>Place Bid</h2>
+        <h2 className="text-2xl font-semibold mb-4">Place Bid</h2>
         {selectedProduct ? (
-          <div>
-            <p>
-              Selected Product: <strong>{selectedProduct.title}</strong>
+          <div className="p-6 border rounded-lg shadow-md">
+            <p className="mb-4">
+              <strong className="text-lg">Selected Product: </strong>
+              {selectedProduct.title}
             </p>
-            <p>Current Bid: {selectedProduct.currentBid}</p>
+            <p className="mb-4">
+              <strong className="text-lg">Current Bid: </strong>
+              {selectedProduct.currentBid}
+            </p>
             <input
               type="number"
               step="0.01"
               placeholder="Enter your bid"
               value={bidAmount}
               onChange={(e) => setBidAmount(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg mb-4"
             />
-            <button onClick={placeBid}>Place Bid</button>
+            <button
+              onClick={placeBid}
+              className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+            >
+              Place Bid
+            </button>
           </div>
         ) : (
-          <p>Please select a product to place a bid.</p>
+          <p className="text-gray-500 mt-4">Please select a product to place a bid.</p>
         )}
       </div>
     </div>
